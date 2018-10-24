@@ -121,17 +121,19 @@ Note: you *must* stop playing if your player has gone bust. How will you handle 
 
 ```{r}
 
-markovGame <- function(numberOfHands, betValue, bankroll, starting_p=0.48, increment=0.01) {
-  p <- starting_p
+markovGame <- function(numberOfHands, betValue, bankroll, starting_p = 0.48, increment = 0.01) {
+  # the number of hands, value of the bet, initial bankroll, starting probability of winning, and the increment are entered as the initial arguments
   
-  for (i in 1:numberOfHands) {
-    if (rbinom(1, 1, p) == 1) {
-      bankroll <- bankroll + betValue
+  p <- starting_p # the initial probability is the value provided in the arguments
+  
+  for (i in 1:numberOfHands) { # for every hand, up to the maximum number of hands
+    if (rbinom(1, 1, p) == 1) { # play the hand, and if the result is a 1 (a win!)
+      bankroll <- bankroll + betValue # add the bet value to the bankroll
       if (p < 1 - increment) {
         p <- (p + increment)
       } 
-    } else {
-      p <- 0.48
+    } else { # if the result is not a 1 (you lose!), and the probability returns to the starting probability, and you lose your bet
+      p <- starting_p
       bankroll <- bankroll - betValue
     } 
   }
@@ -142,16 +144,17 @@ print(markovGame(50, 100, 50000))
 
 ```
 
-
 a. Is this a fair game? Simulate one hundred thousand sequential hands to determine the size of your return. Then repeat this simulation 99 more times to get a range of values to calculate the expectation.
 
 ```{r}
 return100K48 <- markovGame(100000, 100, 5000000)
-print(return100KHands)
+print(return100K48)
 
 expect48 <- as.vector(replicate(100, markovGame(100000, 100, 5000000)))
 print(expect48)
 mean(expect48)
+
+# It is not a fair game because we would expect our value to be our initial bankroll.
 ```
 
 
