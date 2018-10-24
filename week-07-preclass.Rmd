@@ -1,0 +1,177 @@
+---
+title: "Simulations Pre-Class Project"
+date: 
+output:
+  html_document
+
+
+---
+
+<style type="text/css">
+.table {
+
+    width: 80%;
+    margin-left:10%; 
+    margin-right:10%;
+}
+</style>
+```{r,setup, echo=FALSE, cache=TRUE}
+## numbers >= 10^5 will be denoted in scientific notation,
+## and rounded to 2 digits
+options(scipen = 3, digits = 3)
+```
+
+
+
+
+#Project Goals:
+
+
+With this project we will simulate a famous probability problem. This will not require knowledge of probability or statistics but only the logic to follow the steps in order to simulate this problem. This is one way to solve problems by using the computer. 
+
+ 1. **Gambler's Ruin**: Suppose you have a bankroll of $1000 and make bets of $100 on a fair game. By simulating the outcome directly for at most 5000 iterations of the game (or hands), estimate:
+    a. the probability that you have "busted" (lost all your money) by the time you have placed your one hundredth bet. 
+    
+```{r}
+# play function plays a fair game with a maximum number of bets, a set bet value, a bankroll, and an output argument to specify the output of the function (default output is bankroll)
+
+play <- function(maxNumberOfBets, betValue, bankroll, output = "bankroll") {
+  betCount <- 0 # initialize bet counter
+  result <- matrix(NA, nrow=1, ncol=2) # initialize matrix to store betCount and bankroll final variables in case the user would like both variables outputted (specifying anything other than "bankroll" or "bet count" as the argument)
+  for (i in 1:maxNumberOfBets) { # for every bet up to the maximum number of bets
+    if (bankroll >= betValue) { # if the player has enough money to make the bet, plau - if not, break.
+      betCount <- betCount + 1 # the bet is placed, and the bet counter increases by one
+      if (rbinom(1, 1, 0.5) == 1) { # the game is played, with a random result of success or failure - 1 indicates success (you win!)
+        bankroll <- bankroll + betValue # if you win, the bet amount is added to your bankroll
+      } else { 
+        bankroll <- bankroll - betValue # if the result is not a 1, you lose, and the bet amount is subtracted from your bankroll
+      }
+    } else {
+      break
+    }
+  }
+  result[1,1] <- betCount # update the results matrix
+  result[1,2] <- bankroll
+  
+  if (output=="bankroll"){ # output the value the user specified, or both if alternative key given
+    return(result[1,2])
+  } else if (output=="bet count") {
+    return(result[1,1])
+  } else {
+    return(result)
+  }
+}
+
+bustedProb <- (sum(replicate(5000, (play(100,100,1000)==0))) / 5000)
+print(bustedProb)
+
+```
+
+b. the probability that you have busted by the time you have placed your five hundredth bet by simulating the outcome directly. 
+    
+```{r}
+bustedProb2 <- (sum(replicate(5000, (play(500, 100, 1000)==0))) / 5000)
+print(bustedProb2)
+
+```
+
+c. the mean time you go bust, given that you go bust within the first 5000 hands.
+```{r}
+
+meanBust <- function(numberOfHands) {
+  bustNums <- vector(length = 0)
+  bustCount <- replicate(numberOfHands, play(100, 100, 1000, output="bet count"))
+  for (i in 1:length(bustCount)) {
+    if (bustCount[i] < 100) {
+      bustNums <- c(bustNums, bustCount[i])
+    }
+  }
+  return(mean(bustNums))
+}
+
+meanBust(5000)
+```
+
+
+d. the mean and variance of your bankroll after 100 hands (including busts).
+
+```{r}
+
+bankrollMeanVar <- function(numberOfHands) {
+  bankrollTotals <- replicate(numberOfHands, play(100, 100, 1000))
+  bankrollMean <- mean(bankrollTotals)
+  bankrollVar <- var(bankrollTotals)
+  print(paste("The bankroll mean after", numberOfHands, "hands is: $", bankrollMean))
+  print(paste("The bankroll variance after", numberOfHands, "hands is: $", round(bankrollVar, 2)))
+}
+
+bankrollMeanVar(100)
+```
+
+e. the mean and variance of your bankroll after 500 hands (including busts).
+
+```{r}
+bankrollMeanVar(500)
+```
+
+ 
+Note: you *must* stop playing if your player has gone bust. How will you handle this in the `for` loop?
+
+2. **Markov Chains**. Suppose you have a game where the probability of winning on your first hand is 48%; each time you win, that probability goes up by one percentage point for the next game (to a maximum of 100%, where it must stay), and each time you lose, it goes back down to 48%. Assume you cannot go bust and that the size of your wager is a constant $100.
+
+```{r}
+
+markovGame <- function(numberOfHands, betValue, bankroll, starting_p=0.48, increment=0.01) {
+  p <- starting_p
+  
+  for (i in 1:numberOfHands) {
+    if (rbinom(1, 1, p) == 1) {
+      bankroll <- bankroll + betValue
+      if (p < 1 - increment) {
+        p <- (p + increment)
+      } 
+    } else {
+      p <- 0.48
+      bankroll <- bankroll - betValue
+    } 
+  }
+  return(bankroll)
+}
+
+print(markovGame(50, 100, 50000))
+
+```
+
+
+a. Is this a fair game? Simulate one hundred thousand sequential hands to determine the size of your return. Then repeat this simulation 99 more times to get a range of values to calculate the expectation.
+
+```{r}
+return100K48 <- markovGame(100000, 100, 5000000)
+print(return100KHands)
+
+expect48 <- as.vector(replicate(100, markovGame(100000, 100, 5000000)))
+print(expect48)
+mean(expect48)
+```
+
+
+b. Repeat this process but change the starting probability to a new value within 2% either way. Get the expected return after 100 repetitions. Keep exploring until you have a return value that is as fair as you can make it. Can you do this automatically?
+
+```{r}
+return100K50 <- markovGame(100000, 100, 5000000, 0.50)
+print(return100K50)
+
+expect50 <- as.vector(replicate(100, markovGame(100000, 100, 5000000, 0.50)))
+print(expect50)
+mean(expect50)
+```
+
+
+c. Repeat again, keeping the initial probability at 48%, but this time change the probability increment to a value different from 1%. Get the expected return after 100 repetitions. Keep changing this value until you have a return value that is as fair as you can make it. 
+
+```{r}
+expectChanged <- as.vector(replicate(100, markovGame(100000, 100, 5000000, starting_p = 0.50, increment = 0.03)))
+print(expectChanged)
+mean(expectChanged)
+```
+
