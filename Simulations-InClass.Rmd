@@ -217,11 +217,33 @@ bankrollMeanVar(500)
 The steps of this process are:
 
   a. Draw a sample, with replacement, from your data which is the same length of your data.
+```{r}
+my_data <- matrix(sample(1:100, 100, replace = T), nrow=10, ncol=10, byrow=T)
+my_data
+my_sample <- my_data[sample(row(my_data), nrow(my_data), replace = T), byrow=T]
+my_sample
+```
+  
   b. Calculate the statistic of interest on this boostrap sample (ie mean, variance, regression,...)
+```{r}
+colMeans(my_sample)
+colVars(my_sample)
+lm(my_sample[,3] ~ my_sample[,7], data = as.data.frame(my_sample))
+
+```
+  
   c. Peform steps 1:2 at least 1000 times over until you have a vector of your statistics. 
+```{r}
+
+```
+  
   d. The lower bound of a 95% CI will be the 0.025 percentile
   e. The upper bound of a 95% CI will be the 0.975 percentile
 
 Make a function called `boot_ci` which calculates the 95% confidence interval in this manner. 
+```{r}
+
+```
+
 
 5. For problems 3b and 3c, you calculated a mean value. Because you saved these final results in a vector, use the bootstrap to estimate the variance of the return in each case for your final answer. Once you have these results, which game has the smaller variance in returns?
