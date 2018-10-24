@@ -281,17 +281,16 @@ The steps of this process are:
 
   a. Draw a sample, with replacement, from your data which is the same length of your data.
 ```{r}
-my_data <- matrix(sample(1:100, 100, replace = T), nrow = 10, ncol = 10, byrow = T)
+my_data <- sample(1:10, 10, replace = T)
 my_data
-my_sample <- my_data[sample(row(my_data), nrow(my_data), replace = T), byrow = T]
+my_sample <- my_data[sample(my_data, length(my_data), replace = T)]
 my_sample
 ```
   
   b. Calculate the statistic of interest on this boostrap sample (ie mean, variance, regression,...)
 ```{r}
-col.means = colMeans(my_sample, na.rm = T)
-col.vars = apply(my_sample, 2, var, na.rm = T)
-lm(my_sample[,3] ~ my_sample[,7], data = as.data.frame(my_sample))
+sample_mean = mean(my_sample, na.rm = T)
+sample_var = var(my_sample, na.rm = T)
 ```
   
   c. Peform steps 1:2 at least 1000 times over until you have a vector of your statistics. 
@@ -302,7 +301,8 @@ lm(my_sample[,3] ~ my_sample[,7], data = as.data.frame(my_sample))
   d. The lower bound of a 95% CI will be the 0.025 percentile
   e. The upper bound of a 95% CI will be the 0.975 percentile
 ```{r}
-
+CI.LL <- qnorm(0.025,length(my_data) - 1)*sd(my_data)/sqrt(length(my_data))
+CI.UL <- qnorm(0.975,length(my_data) - 1)*sd(my_data)/sqrt(length(my_data))
 ```
 
 Make a function called `boot_ci` which calculates the 95% confidence interval in this manner. 
