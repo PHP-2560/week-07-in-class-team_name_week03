@@ -207,8 +207,71 @@ bankrollMeanVar(500)
 
 3. **Markov Chains**. Suppose you have a game where the probability of winning on your first hand is 48%; each time you win, that probability goes up by one percentage point for the next game (to a maximum of 100%, where it must stay), and each time you lose, it goes back down to 48%. Assume you cannot go bust and that the size of your wager is a constant $100.
     a. Is this a fair game? Simulate one hundred thousand sequential hands to determine the size of your return. Then repeat this simulation 99 more times to get a range of values to calculate the expectation.
-    b. Repeat this process but change the starting probability to a new value within 2% either way. Get the expected return after 100 repetitions. Keep exploring until you have a return value that is as fair as you can make it. Can you do this automatically?
-    c. Repeat again, keeping the initial probability at 48%, but this time change the probability increment to a value different from 1%. Get the expected return after 100 repetitions. Keep changing this value until you have a return value that is as fair as you can make it. 
+    
+```{r}
+
+markovGame <- function(numberOfHands, betValue, bankroll, starting_p = 0.48, increment = 0.01) {
+  # the number of hands, value of the bet, initial bankroll, starting probability of winning, and the increment are entered as the initial arguments
+  
+  p <- starting_p # the initial probability is the value provided in the arguments
+  
+  for (i in 1:numberOfHands) { # for every hand, up to the maximum number of hands
+    if (rbinom(1, 1, p) == 1) { # play the hand, and if the result is a 1 (a win!)
+      bankroll <- bankroll + betValue # add the bet value to the bankroll
+      if (p < 1 - increment) {
+        p <- (p + increment)
+      } 
+    } else { # if the result is not a 1 (you lose!), and the probability returns to the starting probability, and you lose your bet
+      p <- starting_p
+      bankroll <- bankroll - betValue
+    } 
+  }
+  return(bankroll)
+}
+
+print(markovGame(100000, 100, 500000))
+
+expect48 <- as.vector(replicate(100, markovGame(100000, 100, 500000)))
+print(expect48)
+mean(expect48)
+
+# It is not a fair game because we would expect our value to be (within 2% or) very close to our initial bankroll.
+```
+
+b. Repeat this process but change the starting probability to a new value within 2% either way. Get the expected return after 100 repetitions. Keep exploring until you have a return value that is as fair as you can make it. Can you do this automatically?
+
+```{r}
+
+return100K50 <- markovGame(100000, 100, 5000000, starting_p = 0.48)
+print(return100K50)
+
+bestP100Hands <- function(numberOfHands, betValue, bankroll, starting_p = 0.48, increment = 0.01) {
+  high <- starting_p+0.02
+  low <- starting_p-0.02
+  mid <- starting_p
+  
+  expectValue <- mean(as.vector(replicate(100, markovGame(numberOfHands, betValue, bankroll, mid))))
+
+  while (!((expectValue <= bankroll*1.02) & (expectValue >= bankroll*0.98))) {
+    if (expectValue > bankroll) {
+      high <- mid
+      mid <- (low+high)/2
+    } else {
+      low <- mid
+      mid <- (low+high)/2
+    }
+      expectValue <- mean(as.vector(replicate(100, markovGame(numberOfHands, betValue, bankroll, mid))))
+      print(paste("p is", mid))
+      print(paste("expectedValue is", expectValue))
+  }
+  print(mid)
+}
+
+bestP100Hands(10000, 100, 500000, 0.48)
+
+```
+
+c. Repeat again, keeping the initial probability at 48%, but this time change the probability increment to a value different from 1%. Get the expected return after 100 repetitions. Keep changing this value until you have a return value that is as fair as you can make it. 
 
 
 4. Creating a Bootstrap function. There is a particular concept called [bootstrapping]
