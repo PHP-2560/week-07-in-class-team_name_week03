@@ -193,8 +193,33 @@ bestP100Hands(10000, 100, 500000, 0.48)
 c. Repeat again, keeping the initial probability at 48%, but this time change the probability increment to a value different from 1%. Get the expected return after 100 repetitions. Keep changing this value until you have a return value that is as fair as you can make it. 
 
 ```{r}
-expectChanged <- as.vector(replicate(100, markovGame(100000, 100, 5000000, starting_p = 0.50, increment = 0.03)))
+expectChanged <- as.vector(replicate(100, markovGame(100000, 100, 5000000, starting_p = 0.48, increment = 0.03)))
 print(expectChanged)
 mean(expectChanged)
+
+
+bestIncr100Hands <- function(numberOfHands, betValue, bankroll, starting_p = 0.48, increment = 0.03) {
+  high <- increment+0.01
+  low <- increment-0.01
+  mid <- increment
+  
+  expectValue <- mean(as.vector(replicate(100, markovGame(numberOfHands, betValue, bankroll, 0.48, mid))))
+
+  while (!((expectValue <= bankroll*1.02) & (expectValue >= bankroll*0.98))) {
+    if (expectValue > bankroll) {
+      high <- mid
+      mid <- (low+high)/2
+    } else {
+      low <- mid
+      mid <- (low+high)/2
+    }
+      expectValue <- mean(as.vector(replicate(100, markovGame(numberOfHands, betValue, bankroll, 0.48, mid))))
+      print(paste("p is", mid))
+      print(paste("expectedValue is", expectValue))
+  }
+  print(mid)
+}
+
+bestIncr100Hands(100000, 100, 500000, 0.48, 0.03)
 ```
 
