@@ -123,7 +123,7 @@ Note: you *must* stop playing if your player has gone bust. How will you handle 
 2. Repeat the previous problem with betting on black in American roulette, where the probability of winning on any spin is 18/38 for an even payout.
 
 ```{r}
-# play function plays a fair game with a maximum number of bets, a set bet value, a bankroll, and an output argument to specify the output of the function (default output is bankroll)
+# play2 function plays a game where the probability of success is 18/38 with a maximum number of bets, a set bet value, a bankroll, and an output argument to specify the output of the function (default output is bankroll)
 
 play2 <- function(maxNumberOfBets, betValue, bankroll, output = "bankroll") {
   betCount <- 0 # initialize bet counter
@@ -169,7 +169,7 @@ c. the mean time you go bust, given that you go bust within the first 5000 hands
 ```{r}
 meanBust <- function(numberOfHands) {
   bustNums <- vector(length = 0)
-  bustCount <- replicate(numberOfHands, play(100, 100, 1000, output="bet count"))
+  bustCount <- replicate(numberOfHands, play2(100, 100, 1000, output="bet count"))
   for (i in 1:length(bustCount)) {
     if (bustCount[i] < 100) {
       bustNums <- c(bustNums, bustCount[i])
@@ -217,11 +217,33 @@ bankrollMeanVar(500)
 The steps of this process are:
 
   a. Draw a sample, with replacement, from your data which is the same length of your data.
+```{r}
+my_data <- matrix(sample(1:100, 100, replace = T), nrow=10, ncol=10, byrow=T)
+my_data
+my_sample <- my_data[sample(row(my_data), nrow(my_data), replace = T), byrow=T]
+my_sample
+```
+  
   b. Calculate the statistic of interest on this boostrap sample (ie mean, variance, regression,...)
+```{r}
+colMeans(my_sample)
+colVars(my_sample)
+lm(my_sample[,3] ~ my_sample[,7], data = as.data.frame(my_sample))
+
+```
+  
   c. Peform steps 1:2 at least 1000 times over until you have a vector of your statistics. 
+```{r}
+
+```
+  
   d. The lower bound of a 95% CI will be the 0.025 percentile
   e. The upper bound of a 95% CI will be the 0.975 percentile
 
 Make a function called `boot_ci` which calculates the 95% confidence interval in this manner. 
+```{r}
+
+```
+
 
 5. For problems 3b and 3c, you calculated a mean value. Because you saved these final results in a vector, use the bootstrap to estimate the variance of the return in each case for your final answer. Once you have these results, which game has the smaller variance in returns?
