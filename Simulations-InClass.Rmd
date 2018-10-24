@@ -123,7 +123,7 @@ Note: you *must* stop playing if your player has gone bust. How will you handle 
 2. Repeat the previous problem with betting on black in American roulette, where the probability of winning on any spin is 18/38 for an even payout.
 
 ```{r}
-# play function plays a fair game with a maximum number of bets, a set bet value, a bankroll, and an output argument to specify the output of the function (default output is bankroll)
+# play2 function plays a game where the probability of success is 18/38 with a maximum number of bets, a set bet value, a bankroll, and an output argument to specify the output of the function (default output is bankroll)
 
 play2 <- function(maxNumberOfBets, betValue, bankroll, output = "bankroll") {
   betCount <- 0 # initialize bet counter
