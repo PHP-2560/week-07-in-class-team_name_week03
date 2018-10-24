@@ -321,12 +321,21 @@ my_sample
   b. Calculate the statistic of interest on this boostrap sample (ie mean, variance, regression,...)
 ```{r}
 sample_mean = mean(my_sample, na.rm = T)
+sample_mean
 sample_var = var(my_sample, na.rm = T)
+sample_var
 ```
   
   c. Peform steps 1:2 at least 1000 times over until you have a vector of your statistics. 
 ```{r}
+a=replicate(1000,my_data[sample(my_data, length(my_data), replace = T)])# repeat 1000 times, each column means one sample
 
+
+mean1000=colMeans(a) # mean for each column
+mean1000
+
+var1000=apply(a,2,var)# variance for each column
+var1000
 ```
   
   d. The lower bound of a 95% CI will be the 0.025 percentile
