@@ -161,12 +161,32 @@ mean(expect48)
 b. Repeat this process but change the starting probability to a new value within 2% either way. Get the expected return after 100 repetitions. Keep exploring until you have a return value that is as fair as you can make it. Can you do this automatically?
 
 ```{r}
-return100K50 <- markovGame(100000, 100, 5000000, 0.50)
+return100K50 <- markovGame(100000, 100, 5000000, starting_p = 0.48)
 print(return100K50)
 
-expect50 <- as.vector(replicate(100, markovGame(100000, 100, 5000000, 0.50)))
-print(expect50)
-mean(expect50)
+bestP100Hands <- function(numberOfHands, betValue, bankroll, starting_p = 0.48, increment = 0.01) {
+  high <- starting_p+0.02
+  low <- starting_p-0.02
+  mid <- starting_p
+  
+  expectValue <- mean(as.vector(replicate(100, markovGame(numberOfHands, betValue, bankroll, mid))))
+
+  while (!((expectValue <= bankroll*1.02) & (expectValue >= bankroll*0.98))) {
+    if (expectValue > bankroll) {
+      high <- mid
+      mid <- (low+high)/2
+    } else {
+      low <- mid
+      mid <- (low+high)/2
+    }
+      expectValue <- mean(as.vector(replicate(100, markovGame(numberOfHands, betValue, bankroll, mid))))
+      print(paste("p is", mid))
+      print(paste("expectedValue is", expectValue))
+  }
+  print(mid)
+}
+
+bestP100Hands(10000, 100, 500000, 0.48)
 ```
 
 
