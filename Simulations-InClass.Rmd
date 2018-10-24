@@ -169,7 +169,7 @@ c. the mean time you go bust, given that you go bust within the first 5000 hands
 ```{r}
 meanBust <- function(numberOfHands) {
   bustNums <- vector(length = 0)
-  bustCount <- replicate(numberOfHands, play(100, 100, 1000, output="bet count"))
+  bustCount <- replicate(numberOfHands, play2(100, 100, 1000, output="bet count"))
   for (i in 1:length(bustCount)) {
     if (bustCount[i] < 100) {
       bustNums <- c(bustNums, bustCount[i])
