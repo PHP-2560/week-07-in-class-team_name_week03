@@ -314,7 +314,7 @@ The steps of this process are:
 ```{r}
 my_data <- sample(1:10, 10, replace = T)
 my_data
-my_sample <- my_data[sample(my_data, length(my_data), replace = T)]
+my_sample <- sample(my_data, length(my_data), replace = T)
 my_sample
 ```
   
@@ -347,8 +347,26 @@ CI.UL <- qnorm(0.975,length(my_data) - 1)*sd(my_data)/sqrt(length(my_data))
 
 Make a function called `boot_ci` which calculates the 95% confidence interval in this manner. 
 ```{r}
+boot_ci=function(my_data){
+  my_sample <- sample(my_data, length(my_data), replace = T)
+  sample_mean = mean(my_sample, na.rm = T)
+  sample_var = var(my_sample, na.rm = T)
+  CI.LL <- qnorm(0.025,length(my_sample) - 1)*sd(my_sample)/sqrt(length(my_sample))
+  CI.UL <- qnorm(0.975,length(my_sample) - 1)*sd(my_sample)/sqrt(length(my_sample))
+  return(c(sample_mean, sample_var,CI.LL,CI.UL))
+}
 
+boot_ci(my_data)
 ```
 
 
 5. For problems 3b and 3c, you calculated a mean value. Because you saved these final results in a vector, use the bootstrap to estimate the variance of the return in each case for your final answer. Once you have these results, which game has the smaller variance in returns?
+
+```{r}
+
+boot_ci(expect48)
+boot_ci(expectChanged)
+```
+
+
+
