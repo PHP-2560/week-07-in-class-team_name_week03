@@ -341,8 +341,8 @@ var1000
   d. The lower bound of a 95% CI will be the 0.025 percentile
   e. The upper bound of a 95% CI will be the 0.975 percentile
 ```{r}
-CI.LL <- qnorm(0.025,length(my_data) - 1)*sd(my_data)/sqrt(length(my_data))
-CI.UL <- qnorm(0.975,length(my_data) - 1)*sd(my_data)/sqrt(length(my_data))
+CI.LL <- sample_mean-qnorm(0.025,length(my_data) - 1)*sd(my_data)/sqrt(length(my_data))
+CI.UL <- sample_mean+qnorm(0.975,length(my_data) - 1)*sd(my_data)/sqrt(length(my_data))
 ```
 
 Make a function called `boot_ci` which calculates the 95% confidence interval in this manner. 
@@ -351,8 +351,8 @@ boot_ci=function(my_data){
   my_sample <- sample(my_data, length(my_data), replace = T)
   sample_mean = mean(my_sample, na.rm = T)
   sample_var = var(my_sample, na.rm = T)
-  CI.LL <- qnorm(0.025,length(my_sample) - 1)*sd(my_sample)/sqrt(length(my_sample))
-  CI.UL <- qnorm(0.975,length(my_sample) - 1)*sd(my_sample)/sqrt(length(my_sample))
+  CI.LL <- sample_mean-qnorm(0.975,length(my_sample) - 1)*sd(my_sample)/sqrt(length(my_sample))
+  CI.UL <- sample_mean+qnorm(0.975,length(my_sample) - 1)*sd(my_sample)/sqrt(length(my_sample))
   return(c(sample_mean, sample_var,CI.LL,CI.UL))
 }
 
